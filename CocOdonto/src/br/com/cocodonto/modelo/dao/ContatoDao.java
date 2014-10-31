@@ -20,9 +20,9 @@ public class ContatoDao {
 			id = daoHelper
 					.executePreparedUpdateAndReturnGeneratedKeys(
 							daoHelper.getConnectionFromContext(),
-							"insert into contato (CELULAR, EMAIL, TELEFONE) VALUES (?,?,?)",
+							"insert into contato (CELULAR, EMAIL, TELEFONE, FAX) VALUES (?,?,?)",
 							contato.getCelular(), contato.getEmail(),
-							contato.getTelefone());
+							contato.getTelefone(), contato.getFax());
 			contato.setId(id);
 
 		} catch (SQLException e) {
@@ -32,9 +32,7 @@ public class ContatoDao {
 	}
 
 	public void atualizar (Contato contato) throws UpdateDaoException {
-		
 		try {
-			
 			daoHelper
 					.executePreparedUpdate (
 							daoHelper.getConnectionFromContext()
@@ -42,6 +40,7 @@ public class ContatoDao {
 							, contato.getCelular()
 							, contato.getEmail()
 							, contato.getTelefone()
+                                                        , contato.getFax()
 							, contato.getId());
 
 		} catch (SQLException e) {

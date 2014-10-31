@@ -6,23 +6,26 @@ public class Contato {
 	private String email;
 	private String telefone;
 	private String celular;
+        private String fax;
+
+        public String getFax() {
+            return fax;
+        }
+
+        public void setFax(String fax) {
+            this.fax = fax;
+        }
 
 	public Contato() {
 	}
-
-	
 	
 	public long getId() {
 		return id;
 	}
 
-
-
 	public void setId(long id) {
 		this.id = id;
 	}
-
-
 
 	public String getEmail() {
 		return email;
@@ -55,6 +58,7 @@ public class Contato {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Contato [id=").append(id).append(", email=")
 				.append(email).append(", telefone=").append(telefone)
+                                .append(", fax=").append(fax)
 				.append(", celular=").append(celular).append("]");
 		return builder.toString();
 	}
@@ -104,11 +108,4 @@ public class Contato {
 		return true;
 	}
 
-	
-	
-	
-	
-	
-	
-	
 }
