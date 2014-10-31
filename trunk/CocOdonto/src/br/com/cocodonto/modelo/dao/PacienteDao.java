@@ -10,6 +10,8 @@ import br.com.cocodonto.framework.dao.CreateDaoException;
 import br.com.cocodonto.framework.dao.DaoHelper;
 import br.com.cocodonto.framework.dao.QueryMapper;
 import br.com.cocodonto.framework.dao.UpdateDaoException;
+import br.com.cocodonto.modelo.entidade.Contato;
+import br.com.cocodonto.modelo.entidade.Endereco;
 import br.com.cocodonto.modelo.entidade.Paciente;
 import br.com.cocodonto.modelo.entidade.SexoType;
 
@@ -38,6 +40,19 @@ public class PacienteDao {
 		} catch (SQLException e) {
 			daoHelper.rollbackTransaction();	
 			throw new CreateDaoException("Nao foi possivel realizar a transacao", e);
+		} 
+	}
+        
+        public void delete(Paciente paciente) throws CreateDaoException {
+		try {
+			daoHelper.beginTransaction();
+			long id =  daoHelper.executePreparedUpdateAndReturnGeneratedKeys( daoHelper.getConnectionFromContext()
+					, "DELETE FROM paciente WHERE ID = ?"
+					, paciente.getId());
+			daoHelper.endTransaction();
+		} catch (SQLException e) {
+			daoHelper.rollbackTransaction();	
+			throw new CreateDaoException("Nao foi possivel deletar", e);
 		} 
 	}
 
@@ -94,16 +109,39 @@ public class PacienteDao {
 	public List<Paciente> listaTodosPacientes() {
 		final List<Paciente> pacientes = new ArrayList<Paciente>();
 		try {
-			daoHelper.executePreparedQuery("select * from paciente", new QueryMapper<Paciente>() {
+			daoHelper.executePreparedQuery("select * from APP.PACIENTE P " +
+                                                        "inner join APP.PACIENTE_CONTATO PC " +
+                                                        "on P.ID = PC.PACIENTE_ID " +
+                                                        "inner join APP.CONTATO C " +
+                                                        "on PC.CONTATO_ID = C.ID " +
+                                                        "inner join APP.PACIENTE_ENDERECO PE " +
+                                                        "on PE.PACIENTE_ID = P.ID " +
+                                                        "inner join APP.ENDERECO E " +
+                                                        "on PE.ENDERECO_ID = E.ID", new QueryMapper<Paciente>() {
 				@Override
 				public List<Paciente> mapping(ResultSet rset) throws SQLException {
 					while (rset.next()) {
 						Paciente paciente = new Paciente();
-						paciente.setId( rset.getInt("id") );
-						paciente.setNome( rset.getString("nome") );
-						paciente.setCpf( rset.getString("cpf") );
-						paciente.setRg( rset.getString("rg") );
-						paciente.setSexo( SexoType.valueOf( rset.getString("sexo") ) );
+						paciente.setId(rset.getInt("id"));
+						paciente.setNome(rset.getString("nome"));
+						paciente.setCpf(rset.getString("cpf"));
+						paciente.setRg(rset.getString("rg"));
+						paciente.setSexo(SexoType.valueOf( 
+                                                        rset.getString("sexo")));
+                                                Contato contato = new Contato();
+                                                contato.setTelefone(rset.getString("telefone"));
+                                                contato.setCelular(rset.getString("celular"));
+                                                contato.setEmail(rset.getString("email"));
+                                                contato.setFax(rset.getString("fax"));
+                                                contato.setId(rset.getInt("contato_id"));
+                                                paciente.setContato(contato);
+                                                Endereco endereco = new Endereco();
+                                                endereco.setBairro(rset.getString("bairro"));
+                                                endereco.setCep(rset.getString("cep"));
+                                                endereco.setCidade(rset.getString("cidade"));
+                                                endereco.setEndereco(rset.getString("endereco"));
+                                                endereco.setId(rset.getInt("endereco_id"));
+                                                paciente.setEndereco(endereco);
 						pacientes.add(paciente);
 					}
 					return pacientes;
